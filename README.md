@@ -165,5 +165,5 @@ Raison : gérer les corrélations entre variables et ajuster les erreurs précé
 
 ## Évaluation des performances
 - accuracy_score : prédiction correcte du gagnant
-- confusion_matrix : savoir quand le modèle se trompe
+- confusion_matrix : savoir quand le modele se trompe
 - feature_importances_ : pour savoir quelles variables expliquent le plus la victoire (ex. classement, surface, âge, service)
