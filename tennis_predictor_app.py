@@ -63,7 +63,7 @@ MODELS = {
 }
 
 st.set_page_config(page_title="Prédiction Tennis ATP", layout="centered")
-st.title("🎾 Prédiction de match ATP")
+st.title("🎾 Prediction de match ATP")
 
 with st.form("prediction_form"):
     col1, col2 = st.columns(2)
