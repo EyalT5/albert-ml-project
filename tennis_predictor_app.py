@@ -1,8 +1,6 @@
 # tennis_predictor_app.py
-
 import streamlit as st
 import pandas as pd
-import random
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -10,6 +8,7 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
+
 
 # Simulated dataset structure to allow model training
 sample_data = pd.DataFrame({
@@ -38,21 +37,21 @@ preprocessor = ColumnTransformer([
 # Train RandomForest
 rf_pipeline = Pipeline([
     ('preprocess', preprocessor),
-    ('clf', RandomForestClassifier(max_depth=5, random_state=0))
+    ('clf', RandomForestClassifier(max_depth=10, n_estimators=200, random_state=0, class_weight='balanced'))
 ])
 rf_pipeline.fit(X, y)
 
 # Train LogisticRegression
 logreg_pipeline = Pipeline([
     ('preprocess', preprocessor),
-    ('clf', LogisticRegression(max_iter=1000))
+    ('clf', LogisticRegression(max_iter=1000, solver='liblinear', penalty='l2', C=1))
 ])
 logreg_pipeline.fit(X, y)
 
 # Train XGBoost
 xgb_pipeline = Pipeline([
     ('preprocess', preprocessor),
-    ('clf', xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss'))
+    ('clf', xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss', max_depth=7, n_estimators=300, learning_rate=0.1))
 ])
 xgb_pipeline.fit(X, y)
 
@@ -76,8 +75,8 @@ with st.form("prediction_form"):
         rank2 = st.number_input("Classement joueur 2", min_value=1, max_value=3000, value=2)
         age2 = st.number_input("Âge joueur 2", min_value=16.0, max_value=50.0, value=25.0)
 
-    surface = st.selectbox("Surface", ["Hard", "Clay", "Grass"])
-    level = st.selectbox("Niveau du tournoi", ["G", "M", "A", "D"])
+    surface = st.selectbox("Surface", ["Hard", "Clay", "Grass", "Carpet"])
+    level = st.selectbox("Niveau du tournoi", ["G", "M", "A", "D", "O"])
     round_ = st.selectbox("Tour du match", ["R128", "R64", "R32", "R16", "QF", "SF", "F"])
     best_of = st.radio("Format du match", [3, 5])
 
