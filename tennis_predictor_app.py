@@ -1,4 +1,3 @@
-# tennis_predictor_app.py
 import streamlit as st
 import pandas as pd
 from sklearn.pipeline import Pipeline
@@ -9,8 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 
-
-# Simulated dataset structure to allow model training
+# Simulated dataset structure for model training
 sample_data = pd.DataFrame({
     'player_1_rank': [1, 2, 5, 10],
     'player_2_rank': [3, 4, 8, 12],
@@ -26,6 +24,7 @@ sample_data = pd.DataFrame({
 X = sample_data.drop(columns=['label'])
 y = sample_data['label']
 
+# Preprocessing
 cat_features = ['surface', 'tourney_level', 'round']
 num_features = ['player_1_rank', 'player_2_rank', 'player_1_age', 'player_2_age', 'best_of']
 
@@ -34,21 +33,19 @@ preprocessor = ColumnTransformer([
     ('cat', OneHotEncoder(handle_unknown='ignore'), cat_features)
 ])
 
-# Train RandomForest
+# Models
 rf_pipeline = Pipeline([
     ('preprocess', preprocessor),
     ('clf', RandomForestClassifier(max_depth=10, n_estimators=200, random_state=0, class_weight='balanced'))
 ])
 rf_pipeline.fit(X, y)
 
-# Train LogisticRegression
 logreg_pipeline = Pipeline([
     ('preprocess', preprocessor),
     ('clf', LogisticRegression(max_iter=1000, solver='liblinear', penalty='l2', C=1))
 ])
 logreg_pipeline.fit(X, y)
 
-# Train XGBoost
 xgb_pipeline = Pipeline([
     ('preprocess', preprocessor),
     ('clf', xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss', max_depth=7, n_estimators=300, learning_rate=0.1))
@@ -61,8 +58,9 @@ MODELS = {
     "Logistic Regression": logreg_pipeline,
 }
 
+# Streamlit UI
 st.set_page_config(page_title="Prédiction Tennis ATP", layout="centered")
-st.title("🎾 Prediction de match ATP")
+st.title("🎾 Prédiction de match ATP")
 
 with st.form("prediction_form"):
     col1, col2 = st.columns(2)
@@ -79,29 +77,34 @@ with st.form("prediction_form"):
     level = st.selectbox("Niveau du tournoi", ["G", "M", "A", "D", "O"])
     round_ = st.selectbox("Tour du match", ["R128", "R64", "R32", "R16", "QF", "SF", "F"])
     best_of = st.radio("Format du match", [3, 5])
+    model_choice = st.selectbox("Modèle à utiliser", ["XGBoost", "Random Forest", "Logistic Regression"])
 
     submitted = st.form_submit_button("Prédire")
 
 if submitted:
-    input_df = pd.DataFrame([{
-        'player_1_rank': rank1,
-        'player_2_rank': rank2,
-        'player_1_age': age1,
-        'player_2_age': age2,
-        'surface': surface,
-        'tourney_level': level,
-        'round': round_,
-        'best_of': best_of
-    }])
+    if player1 == player2:
+        st.error("Les deux joueurs doivent être différents.")
+    else:
+        input_df = pd.DataFrame([{
+            'player_1_rank': rank1,
+            'player_2_rank': rank2,
+            'player_1_age': age1,
+            'player_2_age': age2,
+            'surface': surface,
+            'tourney_level': level,
+            'round': round_,
+            'best_of': best_of
+        }])
 
-    st.markdown("---")
-    st.subheader("Résultats de la prédiction par modèle")
-    for name, model in MODELS.items():
-        prob = model.predict_proba(input_df)[0]
-        predicted_label = model.predict(input_df)[0]
+        st.markdown("---")
+        st.subheader("Résultat de la prédiction")
+
+        selected_model = MODELS[model_choice]
+        prob = selected_model.predict_proba(input_df)[0]
+        predicted_label = selected_model.predict(input_df)[0]
         predicted_winner = player1 if predicted_label == 1 else player2
 
-        st.markdown(f"### 🧠 {name}")
+        st.markdown(f"### 🧠 {model_choice}")
         st.write(f"**Vainqueur prédit :** {predicted_winner}")
-        st.write(f"{player1} : {round(prob[1]*100, 2)}%")
-        st.write(f"{player2} : {round(prob[0]*100, 2)}%")
+        st.write(f"**{player1} :** {round(prob[1]*100, 2)}% de chances de gagner")
+        st.write(f"**{player2} :** {round(prob[0]*100, 2)}% de chances de gagner")
