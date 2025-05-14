@@ -167,3 +167,6 @@ Raison : gérer les corrélations entre variables et ajuster les erreurs précé
 - accuracy_score : prédiction correcte du gagnant
 - confusion_matrix : savoir quand le modele se trompe
 - feature_importances_ : pour savoir quelles variables expliquent le plus la victoire (ex. classement, surface, âge, service)
+
+## Présentation Canva
+[➡️ Voir la présentation Canva du projet Tennis_atp_Ml](https://www.canva.com/design/DAGm81pxv-0/83iNZW1qn4Il1XPI91X04g/edit?utm_content=DAGm81pxv-0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
